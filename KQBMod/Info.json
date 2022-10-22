@@ -1,10 +1,10 @@
 ﻿{
-  "Id": "KQBMod",
-  "DisplayName": "KQBMod",
-  "Author": "tlazaro",
-  "Version": "1.0.1",
-  "GameVersion": "1.63",
-  "ManagerVersion": "0.22.13.0",
-  "AssemblyName": "KQBMod.dll",
-  "EntryMethod": "KQBMod.Main.Load"  
+    "Id": "KQBMod",
+    "DisplayName": "KQBMod",
+    "Author": "musashi",
+    "Version": "1.0.3",
+    "GameVersion": "1.67",
+    "ManagerVersion": "0.25.0a",
+    "AssemblyName": "KQBMod.dll",
+    "EntryMethod": "KQBMod.Main.Load"
 }

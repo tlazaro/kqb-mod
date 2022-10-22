@@ -4,6 +4,35 @@ A mod for the Killer Queen Black game that provides training modes, better free 
 ## How it works
 Using some tools, extra logic is added to the base game to provide new functionallity. You must own the game and install these tools on top.
 
+## How to use
+
+The first time you open the game with the mod applied, Unity Mod Manager UI will show up. If it doesn't or at any time you want to open it, hit `CTRL + F10`.
+
+### How to host LAN Games
+One player has to host the game, act like the server while all other players will connect to their game. From the game's main menu select `Local` then `Free Play`. While in the lobby, feel free to configure while awaiting for the other players to connect.
+
+The players who wish to connect to the server need to open the UMM UI, (`CTRL + F10`) and in the Networking section of the menu, input the host's ip address and enable the `Remote` checkbox. Hit `Save` and `Close`. Then go to `Local` then `Free Play` and it should connect to the host.
+
+To setup the network and know the IP and port check the following sections.
+
+### Port forwarding
+LAN stands for Local Area Network. Within a local network it's easy to connect directly to other computes. The IPs in local networks are typically `192.168.x.x` for small networks and `10.x.x.x` for larger ones. When computers needs to reach across the Internet these addresses don't work and instead need to use a public IP address.
+
+To know your public IP address, an easy way is to check [NordVPN what is my IP](https://nordvpn.com/what-is-my-ip/). With this address, computers across the Internet can reach you, but this address will only reach to your router, which will not forward messages to your computer. To get it to forward incoming connections you will need to configure your own router to do "port forwarding" using NAT.
+
+Configuring port forwarding is router dependant but in essence you need to tell the router to forward connections arriving at a specific port of your choosing and send to a local ip address and port. The local IP address should be the one assigned to your PC and the local port `5000` which is what KQB uses.
+
+Players connecting will have to input your public IP and port chosen.
+
+### Remote LAN
+An easier way is to use a software like [Hamachi](https://www.vpn.net/) to setup a 'remote LAN'. You will have to create an account and install. Then you can create a network that other's can join. Then the IP address seen in Hamachi can be used to connect to other computers in the network without setting up port forwaring. The problem seems to be that Hamachi only offers up to 5 computers in the free tier while KQB can host up to 8 players. You may either pay for it, find another similar software or figure out port forwarding.
+
+### Firewalls
+It's possible even after setting up all the networking that a Firewall blocks the network traffic on that port. You will need to figure out your PC's configuration to enable incoming traffic on port `5000`.
+
+#### Why this works
+The game is designed internally to separate clients from servers, this allows the online play. This is even how the game runs locally. When playing in any local mode, like Local Play or the Tutorial, the game runs a local server and then connects to it through the "loopback ip" (`127.0.0.1` or `localhost`) using the port `5000`. The mod simply allows the option to input a different ip and port.
+
 ## How to install
 This section is for players who want to improve their experiencie of KQB.
 

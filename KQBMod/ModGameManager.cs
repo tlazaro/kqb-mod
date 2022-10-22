@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using HarmonyLib;
 using KQBMod.Training;
+using KQBMod.Remote;
 using UnityEngine;
 using UnityModManagerNet;
 using UnityEngine.UI;
@@ -36,7 +37,9 @@ namespace KQBMod
     public enum ModGameModeType
     {
         FreePlay,
-        CustomTraining
+        CustomTraining,
+        HostRemotePlay,
+        JoinRemotePlay
     }
 
     public class ModGameManager
@@ -65,8 +68,10 @@ namespace KQBMod
         }
 
         public List<ModGameMode> modes = new List<ModGameMode>{
-            new FreePlay(),
-            new CustomTraining()
+            //new FreePlay(),
+            //new CustomTraining(),
+            new JoinRemotePlay(),
+            new HostRemotePlay(),
         };
 
         public Dictionary<ModGameMode, NavItem> menuItems = new Dictionary<ModGameMode, NavItem>();
@@ -86,6 +91,16 @@ namespace KQBMod
             return CurrentMode != null && CurrentMode.getModeType() == type;
         }
 
+        public bool isRemote()
+        {
+            return isAnyOf(ModGameModeType.HostRemotePlay, ModGameModeType.JoinRemotePlay);
+        }
+
+        public bool isAnyOf(params ModGameModeType[] types)
+        {
+            return CurrentMode != null && types.Contains(CurrentMode.getModeType());
+        }
+
         public bool StartingLobby(CustomMatchLobbyState state)
         {
             return CurrentMode.StartingLobby(state);
@@ -93,20 +108,30 @@ namespace KQBMod
 
         public bool StartMatchClicked(CustomMatchUI customMatchUI)
         {
-            Main.Logger.Log("SkipReadyState");
-            Game.gameConfiguration.gameParams.skinSelectScreenTime = 3;
-            customMatchUI.ProcessStartSkinSelect();
+            if (Main.manager.isCustomMode(ModGameModeType.FreePlay) || Main.manager.isCustomMode(ModGameModeType.CustomTraining))
+            {
+                Main.Logger.Log("SkipReadyState");
+                Game.gameConfiguration.gameParams.skinSelectScreenTime = 3;
+                customMatchUI.ProcessStartSkinSelect();
 
-            return false;
+                return false;
+            }
+            
+            return true;
         }
 
         public bool StartingMatch(MatchManager matchManager)
         {
-            Main.Logger.Log("Trying to escape the 3 Ways");
-            Main.GetServerGame().gameState.startGameCountdown = 0;
-            matchManager.currentClient.gameLogic.gameState.startGameCountdown = 0;
+            if (Main.manager.isCustomMode(ModGameModeType.FreePlay) || Main.manager.isCustomMode(ModGameModeType.CustomTraining))
+            {
+                Main.Logger.Log("Trying to escape the 3 Ways");
+                Main.GetServerGame().gameState.startGameCountdown = 0;
+                matchManager.currentClient.gameLogic.gameState.startGameCountdown = 0;
 
-            return CurrentMode.StartingMatch(matchManager);
+                return CurrentMode.StartingMatch(matchManager);
+            }
+
+            return true;
         }
 
         public bool BerryOnDeposit(Game game, Entity depositingEntity, Entity berryDeposit, Entity.BerryDepositInteractionType berryDepositInteractionType)
@@ -302,12 +327,12 @@ namespace KQBMod
 
                 Main.manager.CurrentMode = Main.manager.GoingIntoMode;
 
-                if (Main.settings.remote)
+                if (Main.manager.CurrentMode.getModeType() == ModGameModeType.JoinRemotePlay)
                 {
                     Main.Logger.Log($"Connecting to {Main.settings.ip}:{Main.settings.port}");
                     UIManager.Instance.DirectConnectToServer(Main.settings.ip, Main.settings.port, false);
                 }
-                else
+                else // if (Main.manager.GoingIntoMode.getModeType() == ModGameModeType.HostRemotePlay)
                 {
                     Main.Logger.Log($"Hosting game at 127.0.0.1:5000 with bind address 0.0.0.0");
                     __instance.StartLocalServer("127.0.0.1", "0.0.0.0", MatchType.Custom);
@@ -344,6 +369,12 @@ namespace KQBMod
     {
         static bool Prefix(MatchClient __instance, ClientCommand command)
         {
+            // Remote play should use default behavior of emotes
+            if (Main.manager.isRemote())
+            {
+                return true;
+            }
+
             if (Main.manager.inCustomMode() && command.type == ClientCommand.Type.NonVerbalCommunication)
             {
                 Main.Logger.Log("Custom Training action " + command.type);

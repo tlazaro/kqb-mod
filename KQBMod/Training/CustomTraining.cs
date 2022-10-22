@@ -51,7 +51,7 @@ namespace KQBMod.Training
     {
         static bool Prefix(MatchManager matchManager)
         {
-            if (Main.manager.inCustomMode())
+            if (Main.manager.isCustomMode(ModGameModeType.FreePlay) || Main.manager.isCustomMode(ModGameModeType.CustomTraining))
             {
                 Main.Logger.Log("Getting deposit info");
 

@@ -78,6 +78,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="RemotePlay\JoinRemotePlay.cs" />
+    <Compile Include="RemotePlay\HostRemotePlay.cs" />
     <Compile Include="Training\AttackVolumeVisual.cs" />
     <Compile Include="Training\CustomTraining.cs" />
     <Compile Include="FreePlay.cs" />

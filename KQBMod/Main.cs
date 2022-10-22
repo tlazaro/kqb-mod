@@ -136,6 +136,7 @@ namespace KQBMod
             h2.fontSize = 13;
             h2.margin = new RectOffset(0, 0, 3, 3);
 
+#if DEBUG
             GUILayout.Label("Free Play Mode", h2);
 
             settings.showHitboxes = GUILayout.Toggle(settings.showHitboxes, "Show hitboxes", GUILayout.ExpandWidth(false));
@@ -155,10 +156,10 @@ namespace KQBMod
             {
                 settings.activeShotTypes[(int)type] = GUILayout.Toggle(settings.activeShotTypes[(int)type], type.ToString(), GUILayout.ExpandWidth(false));
             }
-
+#endif
             GUILayout.Label("Networking", h2);
 
-            GUILayout.Label("Connect to Remote Free Play Server");
+            GUILayout.Label("Remote Host");
             settings.ip = GUILayout.TextField(settings.ip, GUILayout.Width(200));
 
             var portUpdate = GUILayout.TextField(settings.port.ToString(), GUILayout.Width(50));
@@ -166,10 +167,6 @@ namespace KQBMod
             {
                 settings.port = p;
             }
-
-            settings.remote = GUILayout.Toggle(settings.remote, "Remote", GUILayout.ExpandWidth(false));
-
-
         }
 
         static void OnSaveGUI(UnityModManager.ModEntry modEntry)

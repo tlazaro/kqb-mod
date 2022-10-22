@@ -54,12 +54,12 @@ namespace KQBMod
                     }
                 }
             }
-            else
+            else if (!Main.manager.isRemote())
             {
-                Game.gameConfiguration.debugParams.alwaysShowHitBoxes = false;
-                Game.gameConfiguration.debugParams.alwaysShowHurtBoxes = false;
-                Game.gameConfiguration.debugParams.alwaysShowCollisionBoxes = false;
-                Game.gameConfiguration.debugParams.alwaysShowJoustHurtBoxes = false;
+                //Game.gameConfiguration.debugParams.alwaysShowHitBoxes = false;
+                //Game.gameConfiguration.debugParams.alwaysShowHurtBoxes = false;
+                //Game.gameConfiguration.debugParams.alwaysShowCollisionBoxes = false;
+                //Game.gameConfiguration.debugParams.alwaysShowJoustHurtBoxes = false;
             }
 
             return true;
@@ -136,7 +136,7 @@ namespace KQBMod
     {
         static bool Prefix(Game game)
         {
-            if (Main.manager.inCustomMode() && game.isServer)
+            if ((Main.manager.isCustomMode(ModGameModeType.FreePlay) || Main.manager.isCustomMode(ModGameModeType.CustomTraining)) && game.isServer)
             {
                 // Time to start is now!
                 game.gameState.serverTimeToStartGame = game.gameState.serverTime;
@@ -153,7 +153,7 @@ namespace KQBMod
     {
         static bool Prefix(MatchManager __instance)
         {
-            if (Main.manager.inCustomMode())
+            if (Main.manager.isCustomMode(ModGameModeType.FreePlay))
             {
                 Main.Logger.Log("Exiting Free Play");
                 GameManager.GMInstance.Quit();
