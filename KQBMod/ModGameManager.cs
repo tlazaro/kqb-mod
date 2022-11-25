@@ -108,30 +108,30 @@ namespace KQBMod
 
         public bool StartMatchClicked(CustomMatchUI customMatchUI)
         {
-            if (Main.manager.isCustomMode(ModGameModeType.FreePlay) || Main.manager.isCustomMode(ModGameModeType.CustomTraining))
+            if (!Main.manager.isCustomMode(ModGameModeType.FreePlay) && !Main.manager.isCustomMode(ModGameModeType.CustomTraining))
             {
-                Main.Logger.Log("SkipReadyState");
-                Game.gameConfiguration.gameParams.skinSelectScreenTime = 3;
-                customMatchUI.ProcessStartSkinSelect();
-
-                return false;
+                return true;
             }
-            
-            return true;
+
+            Main.Logger.Log("SkipReadyState");
+            Game.gameConfiguration.gameParams.skinSelectScreenTime = 3;
+            customMatchUI.ProcessStartSkinSelect();
+
+            return false;
         }
 
         public bool StartingMatch(MatchManager matchManager)
         {
-            if (Main.manager.isCustomMode(ModGameModeType.FreePlay) || Main.manager.isCustomMode(ModGameModeType.CustomTraining))
+            if (!Main.manager.isCustomMode(ModGameModeType.FreePlay) && !Main.manager.isCustomMode(ModGameModeType.CustomTraining))
             {
-                Main.Logger.Log("Trying to escape the 3 Ways");
-                Main.GetServerGame().gameState.startGameCountdown = 0;
-                matchManager.currentClient.gameLogic.gameState.startGameCountdown = 0;
-
-                return CurrentMode.StartingMatch(matchManager);
+                return true;
             }
 
-            return true;
+            Main.Logger.Log("Trying to escape the 3 Ways");
+            Main.GetServerGame().gameState.startGameCountdown = 0;
+            matchManager.currentClient.gameLogic.gameState.startGameCountdown = 0;
+
+            return CurrentMode.StartingMatch(matchManager);
         }
 
         public bool BerryOnDeposit(Game game, Entity depositingEntity, Entity berryDeposit, Entity.BerryDepositInteractionType berryDepositInteractionType)
@@ -146,10 +146,9 @@ namespace KQBMod
     {
         static bool Prefix(CustomMatchLobbyGameMode __instance, MatchManager matchManager)
         {
-            if (Main.manager.inCustomMode())
-            {
-
-            }
+            // if (Main.manager.inCustomMode())
+            // {
+            // }
 
             return true;
         }
@@ -162,24 +161,23 @@ namespace KQBMod
     {
         public static bool Prefix(Game game, CustomMatchLobbyState state, ref List<int> activeLevels)
         {
-            if (Main.manager.inCustomMode())
+            if (!Main.manager.inCustomMode()) return true;
+            
+            Main.manager.StartingLobby(state);
+
+            //foreach (GameLogic.Level level in Game.gameConfiguration.levels)
+            //{
+            //    Main.Logger.Log($"Level id {level.id}:{level.name} playable {level.playable} pool {level.availableForPool}");
+            //}
+
+            Main.Logger.Log($"Active levels before {String.Join(", ", activeLevels)}");
+
+            if (Main.manager.isCustomMode(ModGameModeType.CustomTraining))
             {
-                Main.manager.StartingLobby(state);
+                var mode = (CustomTraining)Main.manager.CurrentMode;
 
-                //foreach (GameLogic.Level level in Game.gameConfiguration.levels)
-                //{
-                //    Main.Logger.Log($"Level id {level.id}:{level.name} playable {level.playable} pool {level.availableForPool}");
-                //}
-
-                Main.Logger.Log($"Active levels before {String.Join(", ", activeLevels)}");
-
-                if (Main.manager.isCustomMode(ModGameModeType.CustomTraining))
-                {
-                    var mode = (CustomTraining)Main.manager.CurrentMode;
-
-                    activeLevels = activeLevels.Where(levelId => levelId == (int)mode.trainingPack.levelId).ToList();
-                    Main.Logger.Log($"Active levels after {String.Join(", ", activeLevels)}");
-                }
+                activeLevels = activeLevels.Where(levelId => levelId == (int)mode.trainingPack.levelId).ToList();
+                Main.Logger.Log($"Active levels after {String.Join(", ", activeLevels)}");
             }
 
             return true;
@@ -251,43 +249,41 @@ namespace KQBMod
             Main.Logger.Log($"nav structure has: {String.Join(", ", ___localNavStructure.Select(x => x.mainText.mTerm))}");
 
             // Only patch localNavStructure if about to be used
-            if (menuTypes.Equals(___localNavStructure))
+            if (!menuTypes.Equals(___localNavStructure)) return true;
+            
+            Main.Logger.Log("local nav");
+            var insertIndex = 1; // Leaves an empty line at 0
+            foreach (var mode in Main.manager.modes)
             {
-                Main.Logger.Log("local nav");
-                var insertIndex = 1; // Leaves an empty line at 0
-                foreach (var mode in Main.manager.modes)
+                Main.Logger.Log("adding mode: " + mode.getMenuItemText());
+                Main.manager.menuItems.TryGetValue(mode, out NavItem menuItem);
+
+                if (menuItem == null)
                 {
-                    Main.Logger.Log("adding mode: " + mode.getMenuItemText());
-                    NavItem menuItem = null;
-                    Main.manager.menuItems.TryGetValue(mode, out menuItem);
+                    Main.Logger.Log("item was null");
+                    var mterm = "MainMenu/" + mode.getMenuItemText();
 
-                    if (menuItem == null)
+                    // Plugin was reloaded, cleanup previous NavItem
+                    // TODO maintain a list of side-effect and undo them?
+                    var previousItem = ___localNavStructure.Find(item => item.mainText.mTerm == mterm);
+                    if (previousItem != null)
                     {
-                        Main.Logger.Log("item was null");
-                        var mterm = "MainMenu/" + mode.getMenuItemText();
-
-                        // Plugin was reloaded, cleanup previous NavItem
-                        // TODO maintain a list of side-effect and undo them?
-                        var previousItem = ___localNavStructure.Find(item => item.mainText.mTerm == mterm);
-                        if (previousItem != null)
-                        {
-                            Main.Logger.Log("removing old menu item");
-                            ___localNavStructure.Remove(previousItem);
-                        }
-                        menuItem = MkNavItem(NavItem.Type.LocalPlay, mterm, mode.getMenuItemText(), true, true);
-
-                        Main.manager.menuItems.Add(mode, menuItem);
+                        Main.Logger.Log("removing old menu item");
+                        ___localNavStructure.Remove(previousItem);
                     }
+                    menuItem = MkNavItem(NavItem.Type.LocalPlay, mterm, mode.getMenuItemText(), true, true);
 
-                    if (menuItem != null && !___localNavStructure.Contains(menuItem))
-                    {
-                        Main.Logger.Log("inserting menu item");
-                        ___localNavStructure.Insert(insertIndex, menuItem);
-                        insertIndex++;
-                    }
-
-                    Main.Logger.Log($"nav structure now has: {String.Join(", ", ___localNavStructure.Select(x => x.mainText.mTerm))}");
+                    Main.manager.menuItems.Add(mode, menuItem);
                 }
+
+                if (menuItem != null && !___localNavStructure.Contains(menuItem))
+                {
+                    Main.Logger.Log("inserting menu item");
+                    ___localNavStructure.Insert(insertIndex, menuItem);
+                    insertIndex++;
+                }
+
+                Main.Logger.Log($"nav structure now has: {String.Join(", ", ___localNavStructure.Select(x => x.mainText.mTerm))}");
             }
 
             return true;
@@ -321,30 +317,25 @@ namespace KQBMod
     {
         static bool Prefix(GameManager __instance)
         {
-            if (Main.manager.GoingIntoMode != null)
+            if (Main.manager.GoingIntoMode == null) return true;
+
+            Main.Logger.Log($"Starting {Main.manager.GoingIntoMode.getModeType()} Mode");
+
+            Main.manager.CurrentMode = Main.manager.GoingIntoMode;
+
+            if (Main.manager.CurrentMode.getModeType() == ModGameModeType.JoinRemotePlay)
             {
-                Main.Logger.Log($"Starting {Main.manager.GoingIntoMode.getModeType()} Mode");
-
-                Main.manager.CurrentMode = Main.manager.GoingIntoMode;
-
-                if (Main.manager.CurrentMode.getModeType() == ModGameModeType.JoinRemotePlay)
-                {
-                    Main.Logger.Log($"Connecting to {Main.settings.ip}:{Main.settings.port}");
-                    UIManager.Instance.DirectConnectToServer(Main.settings.ip, Main.settings.port, false);
-                }
-                else // if (Main.manager.GoingIntoMode.getModeType() == ModGameModeType.HostRemotePlay)
-                {
-                    Main.Logger.Log($"Hosting game at 127.0.0.1:5000 with bind address 0.0.0.0");
-                    __instance.StartLocalServer("127.0.0.1", "0.0.0.0", MatchType.Custom);
-                    UIManager.Instance.DirectConnectToServer("127.0.0.1", 5000, false);
-                }
-
-                return false;
+                Main.Logger.Log($"Connecting to {Main.settings.ip}:{Main.settings.port}");
+                UIManager.Instance.DirectConnectToServer(Main.settings.ip, Main.settings.port, false);
             }
-            else
+            else // if (Main.manager.GoingIntoMode.getModeType() == ModGameModeType.HostRemotePlay)
             {
-                return true;
+                Main.Logger.Log($"Hosting game at 127.0.0.1:5000 with bind address 0.0.0.0");
+                __instance.StartLocalServer("127.0.0.1", "0.0.0.0", MatchType.Custom);
+                UIManager.Instance.DirectConnectToServer("127.0.0.1", 5000, false);
             }
+
+            return false;
         }
     }
 
@@ -375,114 +366,117 @@ namespace KQBMod
                 return true;
             }
 
-            if (Main.manager.inCustomMode() && command.type == ClientCommand.Type.NonVerbalCommunication)
+            if (!Main.manager.inCustomMode() || command.type != ClientCommand.Type.NonVerbalCommunication)
             {
-                Main.Logger.Log("Custom Training action " + command.type);
+                return true;
+            }
 
-                NonVerbalCommunication communication = (NonVerbalCommunication)command.command;
-                NonVerbalCommunication.Type type = (NonVerbalCommunication.Type)communication.type;
+            Main.Logger.Log("Custom Training action " + command.type);
 
-                Game game = Main.GetServerGame();
+            NonVerbalCommunication communication = (NonVerbalCommunication)command.command;
+            NonVerbalCommunication.Type type = (NonVerbalCommunication.Type)communication.type;
 
-                Player player = Main.GetPlayer();
-                Entity playerEntity = Main.GetPlayerEntity();
+            Game game = Main.GetServerGame();
 
-                // Removes emote throttling allowing quick switch
-                game.gameState.blueTeam.lastAlertTime = 0;
-                game.gameState.redTeam.lastAlertTime = 0;
-                foreach (var p in game.gameState.players)
+            Player player = Main.GetPlayer();
+            Entity playerEntity = Main.GetPlayerEntity();
+
+            // Removes emote throttling allowing quick switch
+            game.gameState.blueTeam.lastAlertTime = 0;
+            game.gameState.redTeam.lastAlertTime = 0;
+            foreach (var p in game.gameState.players)
+            {
+                p.lastEmoteTime = 0f;
+                p.emoteThrottleNumberSent = 0;
+                p.emoteThrottleStartTime = 0;
+            }
+
+            if (Main.manager.isCustomMode(ModGameModeType.CustomTraining))
+            {
+                var mode = (CustomTraining)Main.manager.CurrentMode;
+
+                switch (type)
                 {
-                    p.lastEmoteTime = 0f;
-                    p.emoteThrottleNumberSent = 0;
-                    p.emoteThrottleStartTime = 0;
+                    case NonVerbalCommunication.Type.Alert:
+                        switch ((NonVerbalCommunication.Alert)communication.value)
+                        {
+                            case NonVerbalCommunication.Alert.BlueBase:
+                                mode.PreviousShot(mode._event);
+                                break;
+                            case NonVerbalCommunication.Alert.GoldBase:
+                                // Avoid triggering win condition
+                                mode.NextShot(mode._event, false);
+                                break;
+                            case NonVerbalCommunication.Alert.Snail:
+                                mode.PrepareShot(mode._event);
+                                break;
+                            case NonVerbalCommunication.Alert.Gate:
+                                mode.currentShotIndex = 0;
+                                mode.currentTeam = Team.Blue;
+                                mode.PrepareShot(mode._event);
+                                break;
+                        }
+
+                        break;
+                    default:
+                        // do nothing
+                        break;
                 }
+            }
+            else if (Main.manager.isCustomMode(ModGameModeType.FreePlay))
+            {
+                var mode = (FreePlay)Main.manager.CurrentMode;
 
-                if (Main.manager.isCustomMode(ModGameModeType.CustomTraining))
+                switch (type)
                 {
-                    var mode = (CustomTraining)Main.manager.CurrentMode;
+                    case NonVerbalCommunication.Type.Alert:
+                        switch ((NonVerbalCommunication.Alert)communication.value)
+                        {
+                            case NonVerbalCommunication.Alert.BlueBase:
+                                FreePlay.ResetBerryDeposits(game.gameState.blueTeam);
+                                break;
+                            case NonVerbalCommunication.Alert.GoldBase:
+                                FreePlay.ResetBerryDeposits(game.gameState.redTeam);
+                                break;
+                            case NonVerbalCommunication.Alert.Snail:
+                                FreePlay.SwitchTeam(player, playerEntity);
+                                break;
+                            case NonVerbalCommunication.Alert.Gate:
+                                FreePlay.ResetGates();
+                                break;
+                        }
 
-                    switch (type)
-                    {
-                        case NonVerbalCommunication.Type.Alert:
-                            switch ((NonVerbalCommunication.Alert)communication.value)
-                            {
-                                case NonVerbalCommunication.Alert.BlueBase:
-                                    mode.PreviousShot(mode._event);
-                                    break;
-                                case NonVerbalCommunication.Alert.GoldBase:
-                                    // Avoid triggering win condition
-                                    mode.NextShot(mode._event, false);
-                                    break;
-                                case NonVerbalCommunication.Alert.Snail:
-                                    mode.PrepareShot(mode._event);
-                                    break;
-                                case NonVerbalCommunication.Alert.Gate:
-                                    mode.currentShotIndex = 0;
-                                    mode.currentTeam = Team.Blue;
-                                    mode.PrepareShot(mode._event);
-                                    break;
-                            }
-
-                            break;
-                        default:
-                            // do nothing
-                            break;
-                    }
-                }
-                else if (Main.manager.isCustomMode(ModGameModeType.FreePlay))
-                {
-                    var mode = (FreePlay)Main.manager.CurrentMode;
-
-                    switch (type)
-                    {
-                        case NonVerbalCommunication.Type.Alert:
-                            switch ((NonVerbalCommunication.Alert)communication.value)
-                            {
-                                case NonVerbalCommunication.Alert.BlueBase:
-                                    FreePlay.ResetBerryDeposits(game.gameState.blueTeam);
-                                    break;
-                                case NonVerbalCommunication.Alert.GoldBase:
-                                    FreePlay.ResetBerryDeposits(game.gameState.redTeam);
-                                    break;
-                                case NonVerbalCommunication.Alert.Snail:
-                                    FreePlay.SwitchTeam(player, playerEntity);
-                                    break;
-                                case NonVerbalCommunication.Alert.Gate:
-                                    FreePlay.ResetGates();
-                                    break;
-                            }
-
-                            break;
-                        case NonVerbalCommunication.Type.Emote:
-                            switch ((NonVerbalCommunication.Emote)communication.value)
-                            {
-                                case NonVerbalCommunication.Emote.Anger:
-                                    // Switch between Queen and Worker/Warrior
-                                    if (player.type == Entity.EntityType.Queen)
-                                    {
-                                        FreePlay.ConvertPlayerTo(mode.matchManager, player, Entity.EntityType.Runner, RunnerBrain.attackType);
-                                    }
-                                    else if (player.type == Entity.EntityType.Runner || player.type == Entity.EntityType.Warrior)
-                                    {
-                                        FreePlay.ConvertPlayerTo(mode.matchManager, player, Entity.EntityType.Queen, QueenBrain.attackType);
-                                    }
-                                    break;
-                                case NonVerbalCommunication.Emote.Love:
-                                    // Toggle speed boost
-                                    if (player.type == Entity.EntityType.Runner || player.type == Entity.EntityType.Warrior)
-                                    {
-                                        playerEntity.hasSpeedBoost = !playerEntity.hasSpeedBoost;
-                                    }
-                                    break;
-                                case NonVerbalCommunication.Emote.Confused:
-                                    // Toggle shield
-                                    if (player.type == Entity.EntityType.Runner || player.type == Entity.EntityType.Warrior)
-                                    {
-                                        FreePlay.SetShield(playerEntity, !playerEntity.hasShield);
-                                    }
-                                    break;
-                                case NonVerbalCommunication.Emote.Taunt:
-                                    var cycle = new Pair<Entity.EntityType, Attack.Type>[] {
+                        break;
+                    case NonVerbalCommunication.Type.Emote:
+                        switch ((NonVerbalCommunication.Emote)communication.value)
+                        {
+                            case NonVerbalCommunication.Emote.Anger:
+                                // Switch between Queen and Worker/Warrior
+                                if (player.type == Entity.EntityType.Queen)
+                                {
+                                    FreePlay.ConvertPlayerTo(mode.matchManager, player, Entity.EntityType.Runner, RunnerBrain.attackType);
+                                }
+                                else if (player.type == Entity.EntityType.Runner || player.type == Entity.EntityType.Warrior)
+                                {
+                                    FreePlay.ConvertPlayerTo(mode.matchManager, player, Entity.EntityType.Queen, QueenBrain.attackType);
+                                }
+                                break;
+                            case NonVerbalCommunication.Emote.Love:
+                                // Toggle speed boost
+                                if (player.type == Entity.EntityType.Runner || player.type == Entity.EntityType.Warrior)
+                                {
+                                    playerEntity.hasSpeedBoost = !playerEntity.hasSpeedBoost;
+                                }
+                                break;
+                            case NonVerbalCommunication.Emote.Confused:
+                                // Toggle shield
+                                if (player.type == Entity.EntityType.Runner || player.type == Entity.EntityType.Warrior)
+                                {
+                                    FreePlay.SetShield(playerEntity, !playerEntity.hasShield);
+                                }
+                                break;
+                            case NonVerbalCommunication.Emote.Taunt:
+                                var cycle = new Pair<Entity.EntityType, Attack.Type>[] {
                                         new Pair<Entity.EntityType, Attack.Type>(Entity.EntityType.Warrior, Attack.Type.Sword),
                                         new Pair<Entity.EntityType, Attack.Type>(Entity.EntityType.Warrior, Attack.Type.MorningStar),
                                         new Pair<Entity.EntityType, Attack.Type>(Entity.EntityType.Warrior, Attack.Type.Laser),
@@ -491,21 +485,19 @@ namespace KQBMod
                                         new Pair<Entity.EntityType, Attack.Type>(Entity.EntityType.Runner, RunnerBrain.attackType),
                                     };
 
-                                    var found = cycle.ToList().FindIndex(x => x._1 == player.type && x._2 == playerEntity.attackType);
-                                    var selected = found < 0 ? cycle[0] : cycle[(found + 1) % cycle.Length];
+                                var found = cycle.ToList().FindIndex(x => x._1 == player.type && x._2 == playerEntity.attackType);
+                                var selected = found < 0 ? cycle[0] : cycle[(found + 1) % cycle.Length];
 
-                                    FreePlay.ConvertPlayerTo(mode.matchManager, player, selected._1, selected._2);
+                                FreePlay.ConvertPlayerTo(mode.matchManager, player, selected._1, selected._2);
 
-                                    break;
-                            }
+                                break;
+                        }
 
-                            break;
-                    }
+                        break;
                 }
-
-                return false;
             }
-            return true;
+
+            return false;
         }
     }
 }
