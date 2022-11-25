@@ -176,50 +176,33 @@ namespace KQBMod
 
         public static Game GetServerGame()
         {
-            if (manager.inCustomMode())
-            {
-                // The Match Manager runs locally but we need to modify the state of the server, the source of truth.
-                // All entities used must come from the server.
-                GameServer server = Traverse.Create(GameManager.GMInstance).Field("localGameServer").GetValue<GameServer>();
+            if (!manager.inCustomMode()) return null;
 
-                return server.game;
-            }
-            else
-            {
-                return null;
-            }
+            // The Match Manager runs locally but we need to modify the state of the server, the source of truth.
+            // All entities used must come from the server.
+            GameServer server = Traverse.Create(GameManager.GMInstance).Field("localGameServer").GetValue<GameServer>();
+
+            return server.game;
         }
 
         public static Player GetPlayer(MatchClient client)
         {
-            if (manager.inCustomMode())
-            {
-                int actorNr = client.mainPlayerId.actorNr;
-                int inputID = client.mainPlayerId.inputID;
+            if (!manager.inCustomMode()) return null;
 
-                Player player = GetServerGame().gameState.GetPlayer(actorNr, inputID);
+            int actorNr = client.mainPlayerId.actorNr;
+            int inputID = client.mainPlayerId.inputID;
 
-                return player;
+            Player player = GetServerGame().gameState.GetPlayer(actorNr, inputID);
 
-            }
-            else
-            {
-                return null;
-            }
+            return player;
         }
 
         public static Entity GetPlayerEntity(Player player)
         {
-            if (manager.inCustomMode())
-            {
-                Entity playerEntity = GetServerGame().gameState.GetEntityByActorNr(player.actorNr, player.inputID);
+            if (!manager.inCustomMode()) return null;
 
-                return playerEntity;
-            }
-            else
-            {
-                return null;
-            }
+            Entity playerEntity = GetServerGame().gameState.GetEntityByActorNr(player.actorNr, player.inputID);
+            return playerEntity;
         }
 
         // Gets the player for the local client
