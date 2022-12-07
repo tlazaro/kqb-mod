@@ -48,6 +48,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Killer Queen Black\Killer Queen Black_Data\Managed\GameLogic.Utility.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Killer Queen Black\Killer Queen Black_Data\Managed\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -69,9 +72,14 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Killer Queen Black\Killer Queen Black_Data\Managed\UnityEngine.LocalizationModule.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.TextRenderingModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" />
+    <Reference Include="UnityEngine.TextRenderingModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Killer Queen Black\Killer Queen Black_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Killer Queen Black\Killer Queen Black_Data\Managed\UnityEngine.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Killer Queen Black\Killer Queen Black_Data\Managed\UnityEngine.UnityWebRequestModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityModManager">
       <HintPath>..\..\..\..\workspace\UnityModManager\UnityModManager.dll</HintPath>
@@ -80,6 +88,7 @@
   <ItemGroup>
     <Compile Include="RemotePlay\JoinRemotePlay.cs" />
     <Compile Include="RemotePlay\HostRemotePlay.cs" />
+    <Compile Include="SteamClientOverride\SteamClientOverride.cs" />
     <Compile Include="Training\AttackVolumeVisual.cs" />
     <Compile Include="Training\CustomTraining.cs" />
     <Compile Include="FreePlay.cs" />

@@ -242,4 +242,23 @@ namespace KQBMod
             Main.RemoveOnline(__instance);
         }
     }
+
+    [HarmonyPatch(typeof(GameManager))]
+    [HarmonyPatch("CreatePlatformClient")]
+    static class GameSparksSteamOverride
+    {
+        static bool Prefix()
+        {
+            Main.Logger.Log("Skipping Base GameManager.CreatePlatformClient Method");
+            return false;
+        }
+
+        static void Postfix(ref IPlatformClient __result)
+        {
+            GameObject steamManagerPrefab = Traverse.Create(GameManager.GMInstance).Field("steamManagerPrefab").GetValue<GameObject>();
+            SteamClientOverride.SteamClientOverride steamClient = new SteamClientOverride.SteamClientOverride(steamManagerPrefab);
+            ((IPlatformClient)steamClient).Init();
+            __result = steamClient;
+        }
+    }
 }
