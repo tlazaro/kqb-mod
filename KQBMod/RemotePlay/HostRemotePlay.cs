@@ -51,6 +51,11 @@ namespace KQBMod.Remote
             return true;
         }
 
+        bool ModGameMode.IsSpectator()
+        {
+            return false;
+        }
+
         public bool BerryOnDeposit(Game game, Entity depositingEntity, Entity berryDeposit, Entity.BerryDepositInteractionType berryDepositInteractionType)
         {
             return true;

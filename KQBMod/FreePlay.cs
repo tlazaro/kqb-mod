@@ -454,6 +454,11 @@ namespace KQBMod
             return true;
         }
 
+        bool ModGameMode.IsSpectator()
+        {
+            return false;
+        }
+
         bool ModGameMode.BerryOnDeposit(Game game, Entity depositingEntity, Entity berryDeposit, Entity.BerryDepositInteractionType berryDepositInteractionType)
         {
             return true;

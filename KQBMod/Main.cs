@@ -88,15 +88,6 @@ namespace KQBMod
             var prefix = typeof(SetLevelsForMatch).GetMethod("Prefix", BindingFlags.Static | BindingFlags.Public);
             MainHarmony.Patch(original, prefix: new HarmonyMethod(prefix));
 
-            // Patch CustomMatchLobbyGameMode which is internal
-            original = type.GetMethod("InitializeState", BindingFlags.NonPublic | BindingFlags.Static);
-            prefix = typeof(CustomMatchLobbyGameModeDebug).GetMethod("Prefix", BindingFlags.Static | BindingFlags.Public);
-            MainHarmony.Patch(original, prefix: new HarmonyMethod(prefix));
-
-            //original = type.GetMethod("ReservedPlayerJoined", BindingFlags.NonPublic | BindingFlags.Static);
-            //prefix = typeof(ThrowException).GetMethod("Prefix", BindingFlags.Static | BindingFlags.Public);
-            //MainHarmony.Patch(original, prefix: new HarmonyMethod(prefix));
-
 #if DEBUG
             modEntry.OnUnload = Unload;
 #endif

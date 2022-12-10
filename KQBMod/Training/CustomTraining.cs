@@ -115,6 +115,11 @@ namespace KQBMod.Training
             return ModGameModeType.CustomTraining;
         }
 
+        bool ModGameMode.IsSpectator()
+        {
+            return false;
+        }
+
         bool ModGameMode.StartingLobby(CustomMatchLobbyState state)
         {
             switch (Main.settings.trainingLevel)

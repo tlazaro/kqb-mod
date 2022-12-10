@@ -32,6 +32,7 @@ namespace KQBMod
         bool StartingLobby(CustomMatchLobbyState state);
         bool StartingMatch(MatchManager matchManager);
         bool BerryOnDeposit(Game game, Entity depositingEntity, Entity berryDeposit, Entity.BerryDepositInteractionType berryDepositInteractionType);
+        bool IsSpectator();
     }
 
     public enum ModGameModeType
@@ -39,7 +40,9 @@ namespace KQBMod
         FreePlay,
         CustomTraining,
         HostRemotePlay,
-        JoinRemotePlay
+        HostAsSpectatorRemotePlay,
+        JoinRemotePlay,
+        SpectateRemotePlay,
     }
 
     public class ModGameManager
@@ -71,7 +74,9 @@ namespace KQBMod
             //new FreePlay(),
             //new CustomTraining(),
             new JoinRemotePlay(),
+            new SpectateRemotePlay(),
             new HostRemotePlay(),
+            new HostAsSpectatorRemotePlay(),
         };
 
         public Dictionary<ModGameMode, NavItem> menuItems = new Dictionary<ModGameMode, NavItem>();
@@ -93,7 +98,11 @@ namespace KQBMod
 
         public bool isRemote()
         {
-            return isAnyOf(ModGameModeType.HostRemotePlay, ModGameModeType.JoinRemotePlay);
+            return isAnyOf(
+                    ModGameModeType.HostRemotePlay,
+                    ModGameModeType.JoinRemotePlay,
+                    ModGameModeType.HostAsSpectatorRemotePlay,
+                    ModGameModeType.SpectateRemotePlay);
         }
 
         public bool isAnyOf(params ModGameModeType[] types)
@@ -286,6 +295,10 @@ namespace KQBMod
                 Main.Logger.Log($"nav structure now has: {String.Join(", ", ___localNavStructure.Select(x => x.mainText.mTerm))}");
             }
 
+            // If the menu has too many items, it doesn't work. This
+            // cuts off the "Tutorial" and "Back" buttons.
+            while (___localNavStructure.Count > 6) ___localNavStructure.RemoveAt(___localNavStructure.Count-1);
+
             return true;
         }
     }
@@ -323,14 +336,16 @@ namespace KQBMod
 
             Main.manager.CurrentMode = Main.manager.GoingIntoMode;
 
-            __instance.isSpectator = true;
+            __instance.isSpectator = Main.manager.CurrentMode.IsSpectator();
 
-            if (Main.manager.CurrentMode.getModeType() == ModGameModeType.JoinRemotePlay)
+            if (Main.manager.CurrentMode.getModeType() == ModGameModeType.JoinRemotePlay
+                    || Main.manager.CurrentMode.getModeType() == ModGameModeType.SpectateRemotePlay)
             {
                 Main.Logger.Log($"Connecting to {Main.settings.ip}:{Main.settings.port}");
                 UIManager.Instance.DirectConnectToServer(Main.settings.ip, Main.settings.port, false);
             }
-            else // if (Main.manager.GoingIntoMode.getModeType() == ModGameModeType.HostRemotePlay)
+            else // if (Main.manager.GoingIntoMode.getModeType() == ModGameModeType.HostRemotePlay
+                 //     || Main.manager.CurrentMode.getModeType() == ModGameModeType.HostAsSpectatorRemotePlay)
             {
                 Main.Logger.Log($"Hosting game at 127.0.0.1:5000 with bind address 0.0.0.0");
                 __instance.StartLocalServer("127.0.0.1", "0.0.0.0", MatchType.Custom);
@@ -341,47 +356,16 @@ namespace KQBMod
         }
     }
 
-    [HarmonyPatch(typeof(MatchFinder))]
-    [HarmonyPatch("DirectConnectToServer")]
-    static class DirectConnectToServerOverrideSpectate
+    [HarmonyPatch(typeof(RemoteNetworkManager))]
+    [HarmonyPatch("ConnectToServer")]
+    static class ConnectToServerOverrideSpectate
     {
-        static bool Prefix(MatchFinder __instance, RemoteNetworkManager ___remoteNetworkManager, string ipAddress, ushort port, bool loopback)
+        static bool Prefix(ref bool spectator)
         {
-                Main.Logger.Log($"In DirectConnectToServerOverrideSpectate spectator={(GameManager.GMInstance.isSpectator ? "true" : "false")}...");
-
-		string[] obj = new string[1] { "127.0.0.1:40000" };
-		ulong clientId = (ulong)new System.Random().Next();
-		int expireSeconds = -1;
-		int timeoutSeconds = (loopback ? int.MaxValue : 30);
-		string token = Convert.ToBase64String(NetCode.IO.Token.Generate(obj, obj, expireSeconds, timeoutSeconds, clientId, 1234605616436508552uL, 0uL, NetLib.Constants.NetCodeInsecurePrivateKey, useNext: false).TokenBytes);
-		GameLogic.WebService.Model.Connection connection = new GameLogic.WebService.Model.Connection();
-		connection.ipAddress = ipAddress;
-		connection.port = port;
-		connection.token = token;
-		connection.players.AddRange(__instance.GetPlayersForConnection());
-		__instance.gameManager.isLocalMatch = false;
-		__instance.gameManager.networkManager = ___remoteNetworkManager;
-		if (loopback)
-		{
-			___remoteNetworkManager.ConnectToLoopback(connection);
-		}
-		else
-		{
-			___remoteNetworkManager.ConnectToServer(connection, spectator: GameManager.GMInstance.isSpectator);
-		}
-
-                return false;
-        }
-    }
-
-    // Internal class, can't patch this way.
-    //[HarmonyPatch(typeof(CustomMatchLobbyGameMode))]
-    //[HarmonyPatch("InitializeState")]
-    public static class CustomMatchLobbyGameModeDebug
-    {
-        public static bool Prefix(Game game)
-        {
-            Main.Logger.Log($"In CustomMatchLobbyGameMode.InitializeState()... game.reservedPlayers.Count={game.reservedPlayers.Count}");
+            if (Main.manager.CurrentMode.IsSpectator())
+            {
+                spectator = true;
+            }
 
             return true;
         }
@@ -395,20 +379,15 @@ namespace KQBMod
         {
             Main.Logger.Log($"In GameServer.HandleActorJoin()... reservedPlayers.Count={reservedPlayers.Count}, reservedPlayers={string.Join(", ", reservedPlayers)}");
 
-            if (GameManager.GMInstance.isSpectator)
+            if (Main.manager.CurrentMode.IsSpectator())
             {
-                foreach (var player in reservedPlayers) player.team = Team.Color.Spectator;
+                foreach (var player in reservedPlayers)
+                {
+                    player.team = Team.Color.Spectator;
+                }
             }
 
             return true;
-        }
-    }
-
-    public static class ThrowException
-    {
-        public static bool Prefix()
-        {
-            throw new Exception("Failure to a get a stack trace.");
         }
     }
 
