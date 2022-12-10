@@ -360,3 +360,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Directory for symlinks to external references
+KQBMod/external
