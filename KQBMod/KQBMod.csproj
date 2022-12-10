@@ -112,6 +112,9 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="CopyToModDirectory" AfterTargets="Build">
-    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(KQBPath)\Mods\$(ProjectName)\" />
+    <ItemGroup>
+      <FilesToCopy Include="$(TargetPath)*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(KQBPath)\Mods\$(ProjectName)\" />
   </Target>
 </Project>
