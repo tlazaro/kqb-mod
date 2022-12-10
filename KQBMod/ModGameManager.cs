@@ -323,6 +323,8 @@ namespace KQBMod
 
             Main.manager.CurrentMode = Main.manager.GoingIntoMode;
 
+            __instance.isSpectator = true;
+
             if (Main.manager.CurrentMode.getModeType() == ModGameModeType.JoinRemotePlay)
             {
                 Main.Logger.Log($"Connecting to {Main.settings.ip}:{Main.settings.port}");
@@ -336,6 +338,77 @@ namespace KQBMod
             }
 
             return false;
+        }
+    }
+
+    [HarmonyPatch(typeof(MatchFinder))]
+    [HarmonyPatch("DirectConnectToServer")]
+    static class DirectConnectToServerOverrideSpectate
+    {
+        static bool Prefix(MatchFinder __instance, RemoteNetworkManager ___remoteNetworkManager, string ipAddress, ushort port, bool loopback)
+        {
+                Main.Logger.Log($"In DirectConnectToServerOverrideSpectate spectator={(GameManager.GMInstance.isSpectator ? "true" : "false")}...");
+
+		string[] obj = new string[1] { "127.0.0.1:40000" };
+		ulong clientId = (ulong)new System.Random().Next();
+		int expireSeconds = -1;
+		int timeoutSeconds = (loopback ? int.MaxValue : 30);
+		string token = Convert.ToBase64String(NetCode.IO.Token.Generate(obj, obj, expireSeconds, timeoutSeconds, clientId, 1234605616436508552uL, 0uL, NetLib.Constants.NetCodeInsecurePrivateKey, useNext: false).TokenBytes);
+		GameLogic.WebService.Model.Connection connection = new GameLogic.WebService.Model.Connection();
+		connection.ipAddress = ipAddress;
+		connection.port = port;
+		connection.token = token;
+		connection.players.AddRange(__instance.GetPlayersForConnection());
+		__instance.gameManager.isLocalMatch = false;
+		__instance.gameManager.networkManager = ___remoteNetworkManager;
+		if (loopback)
+		{
+			___remoteNetworkManager.ConnectToLoopback(connection);
+		}
+		else
+		{
+			___remoteNetworkManager.ConnectToServer(connection, spectator: GameManager.GMInstance.isSpectator);
+		}
+
+                return false;
+        }
+    }
+
+    // Internal class, can't patch this way.
+    //[HarmonyPatch(typeof(CustomMatchLobbyGameMode))]
+    //[HarmonyPatch("InitializeState")]
+    public static class CustomMatchLobbyGameModeDebug
+    {
+        public static bool Prefix(Game game)
+        {
+            Main.Logger.Log($"In CustomMatchLobbyGameMode.InitializeState()... game.reservedPlayers.Count={game.reservedPlayers.Count}");
+
+            return true;
+        }
+    }
+
+    [HarmonyPatch(typeof(GameServer))]
+    [HarmonyPatch("HandleActorJoin")]
+    public static class HandleActorJoinOverrideSpectate
+    {
+        public static bool Prefix(int actorNr, List<ReservedPlayer> reservedPlayers)
+        {
+            Main.Logger.Log($"In GameServer.HandleActorJoin()... reservedPlayers.Count={reservedPlayers.Count}, reservedPlayers={string.Join(", ", reservedPlayers)}");
+
+            if (GameManager.GMInstance.isSpectator)
+            {
+                foreach (var player in reservedPlayers) player.team = Team.Color.Spectator;
+            }
+
+            return true;
+        }
+    }
+
+    public static class ThrowException
+    {
+        public static bool Prefix()
+        {
+            throw new Exception("Failure to a get a stack trace.");
         }
     }
 
