@@ -6,7 +6,7 @@
 		<ModInfo>Info.json</ModInfo>
 		<GameExe>Killer Queen Black.exe</GameExe>
 		<EntryPoint>[UnityEngine.UIModule.dll]UnityEngine.Canvas.cctor:Before</EntryPoint>
-		<StartingPoint>[Assembly-CSharp.dll]LoadingBarScript.Awake:Before</StartingPoint>
-		<GameVersionPoint>[GameLogic.dll]GameLogic.AnalyticsUtility.Version()</GameVersionPoint>
+		<StartingPoint>[Assembly-CSharp.dll]GameManager.Awake:Before</StartingPoint>
+		<UIStartingPoint>[Assembly-CSharp.dll]LoadingBarScript.Awake:Before</UIStartingPoint>
 	</GameInfo>
 </Config>

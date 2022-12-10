@@ -2,7 +2,7 @@
 A mod for the Killer Queen Black game that provides training modes, better free play and **remote play**.
 
 ## How it works
-Using some tools, extra logic is added to the base game to provide new functionallity. You must own the game and install these tools on top.
+Using some tools, extra logic is added to the base game to provide new functionality. You must own the game and install these tools on top.
 
 ## How to use
 
@@ -25,7 +25,7 @@ Configuring port forwarding is router dependant but in essence you need to tell 
 Players connecting will have to input your public IP and port chosen.
 
 ### Remote LAN
-An easier way is to use a software like [Hamachi](https://www.vpn.net/) to setup a 'remote LAN'. You will have to create an account and install. Then you can create a network that other's can join. Then the IP address seen in Hamachi can be used to connect to other computers in the network without setting up port forwaring. The problem seems to be that Hamachi only offers up to 5 computers in the free tier while KQB can host up to 8 players. You may either pay for it, find another similar software or figure out port forwarding.
+An easier way is to use a software like [Hamachi](https://www.vpn.net/) to setup a 'remote LAN'. You will have to create an account and install. Then you can create a network that other's can join. Then the IP address seen in Hamachi can be used to connect to other computers in the network without setting up port forwarding. The problem seems to be that Hamachi only offers up to 5 computers in the free tier while KQB can host up to 8 players. You may either pay for it, find another similar software or figure out port forwarding.
 
 ### Firewalls
 It's possible even after setting up all the networking that a Firewall blocks the network traffic on that port. You will need to figure out your PC's configuration to enable incoming traffic on port `5000`.
@@ -34,7 +34,7 @@ It's possible even after setting up all the networking that a Firewall blocks th
 The game is designed internally to separate clients from servers, this allows the online play. This is even how the game runs locally. When playing in any local mode, like Local Play or the Tutorial, the game runs a local server and then connects to it through the "loopback ip" (`127.0.0.1` or `localhost`) using the port `5000`. The mod simply allows the option to input a different ip and port.
 
 ## How to install
-This section is for players who want to improve their experiencie of KQB.
+This section is for players who want to improve their KQB experience.
 
 **Summary:**
 - Download KQB Mod from the release section
@@ -90,8 +90,8 @@ To disassemble the game's source code I use [dnSpy](https://github.com/dnSpy/dnS
 While the Unity Mod Manager provides an entry to the game's execution, the code we write needs to be injected in the game's functions. For that I used [Harmony 2](https://github.com/pardeike/Harmony), a code injection library that allows to run code before, instead or after original functions.
 
 ## History
-This mod was created in late 2020. The initial goal was having a training mode similar to Rocket League's training packs where one could practice berry throwing. While developing it, ended up adding a better free play mode, local game hosting with remote joining, rendering hitboxes as well as the berry training packs.
+This mod was created in late 2020. The initial goal was having a training mode similar to Rocket League's training packs where one could practice berry throwing. While developing it, ended up adding a better free play mode, local game hosting with remote joining, rendering hit boxes as well as the berry training packs.
 
-I wanted to publish and share the mod, but first conacted the game developers to make sure there where ok with it. They told me to hold off for a bit while they thought about it. A few days later new rules to the official Discord channel were posted, saying any type of modding would get you banned from online play and the community. I never shared the mod with anyone and kept it private to avoid any conflict for myself and any potential users.
+I wanted to publish and share the mod, but first contacted the game developers to make sure there where ok with it. They told me to hold off for a bit while they thought about it. A few days later new rules to the official Discord channel were posted, saying any type of modding would get you banned from online play and the community. I never shared the mod with anyone and kept it private to avoid any conflict for myself and any potential users.
 
 Now by October 2022 it seems the [game servers are shutting down](https://www.gamedeveloper.com/pc/-i-killer-queen-black-i-will-shut-down-in-november-confirms-liquid-bit). With local play being the only option, the community won't be able to continue playing together, with the only option left being in the same location to play on the same computer. It doesn't have to be this way, the game is already built in such a way that LAN play works. For the community and the people who love this game and want to continue playing, I'm making the mod public.
