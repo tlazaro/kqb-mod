@@ -32,7 +32,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <UMMPath>..\..\..\..\workspace\UnityModManager</UMMPath>
+    <UMMPath>..\UMMReferences\</UMMPath>
     <KQBPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Killer Queen Black</KQBPath>
   </PropertyGroup>
   <PropertyGroup Condition="Exists('external')">
@@ -52,6 +52,9 @@
     <Reference Include="Assembly-CSharp-firstpass">
       <HintPath>$(KQBManagedPath)\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
+    <Reference Include="dnlib">
+      <HintPath>$(UMMPath)\dnlib.dll</HintPath>
+    </Reference>
     <Reference Include="GameLogic, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(KQBManagedPath)\GameLogic.dll</HintPath>
@@ -59,6 +62,15 @@
     <Reference Include="GameLogic.Utility, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(KQBManagedPath)\GameLogic.Utility.dll</HintPath>
+    </Reference>
+    <Reference Include="Ionic.Zip">
+      <HintPath>$(UMMPath)\Ionic.Zip.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>$(UMMPath)\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -81,9 +93,14 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(KQBManagedPath)\UnityEngine.LocalizationModule.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.TextRenderingModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" />
+    <Reference Include="UnityEngine.TextRenderingModule">
+      <HintPath>$(KQBManagedPath)\UnityEngine.TextRenderingModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>$(KQBManagedPath)\UnityEngine.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestModule">
+      <HintPath>$(KQBManagedPath)\UnityEngine.UnityWebRequestModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityModManager">
       <HintPath>$(UMMPath)\UnityModManager.dll</HintPath>
@@ -92,6 +109,7 @@
   <ItemGroup>
     <Compile Include="RemotePlay\JoinRemotePlay.cs" />
     <Compile Include="RemotePlay\HostRemotePlay.cs" />
+    <Compile Include="SteamClientOverride\SteamClientOverride.cs" />
     <Compile Include="Training\AttackVolumeVisual.cs" />
     <Compile Include="Training\CustomTraining.cs" />
     <Compile Include="FreePlay.cs" />
@@ -104,6 +122,7 @@
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
     <None Include="Info.json" />
     <Compile Include="ModGameManager.cs" />
   </ItemGroup>

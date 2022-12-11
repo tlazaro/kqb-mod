@@ -66,7 +66,7 @@ namespace KQBMod
     public static class Main
     {
         public static UnityModManager.ModEntry.ModLogger Logger;
-        public static Harmony MainHarmony = new Harmony("KQBMod");
+        public static HarmonyLib.Harmony MainHarmony = new HarmonyLib.Harmony("KQBMod");
 
         public static Settings settings = null;
         public static ModGameManager manager = null;
@@ -240,6 +240,25 @@ namespace KQBMod
             Main.Logger.Log("NavMenu InitMainMenu");
 
             Main.RemoveOnline(__instance);
+        }
+    }
+    
+    [HarmonyPatch(typeof(GameManager))]
+    [HarmonyPatch("CreatePlatformClient")]
+    static class GameSparksSteamOverride
+    {
+        static bool Prefix()
+        {
+            Main.Logger.Log("Skipping Base GameManager.CreatePlatformClient Method");
+            return false;
+        }
+
+        static void Postfix(ref IPlatformClient __result)
+        {
+            GameObject steamManagerPrefab = Traverse.Create(GameManager.GMInstance).Field("steamManagerPrefab").GetValue<GameObject>();
+            SteamClientOverride.SteamClientOverride steamClient = new SteamClientOverride.SteamClientOverride(steamManagerPrefab);
+            ((IPlatformClient)steamClient).Init();
+            __result = steamClient;
         }
     }
 }
