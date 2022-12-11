@@ -32,7 +32,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <UMMPath>UMMReferences\</UMMPath>
+    <UMMPath>..\UMMReferences\</UMMPath>
     <KQBPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Killer Queen Black</KQBPath>
   </PropertyGroup>
   <PropertyGroup Condition="Exists('external')">
@@ -44,7 +44,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
-      <HintPath>..\UMMReferences\0Harmony.dll</HintPath>
+      <HintPath>$(UMMPath)\0Harmony.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>$(KQBManagedPath)\Assembly-CSharp.dll</HintPath>
@@ -53,7 +53,7 @@
       <HintPath>$(KQBManagedPath)\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
     <Reference Include="dnlib">
-      <HintPath>..\UMMReferences\dnlib.dll</HintPath>
+      <HintPath>$(UMMPath)\dnlib.dll</HintPath>
     </Reference>
     <Reference Include="GameLogic, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -64,10 +64,10 @@
       <HintPath>$(KQBManagedPath)\GameLogic.Utility.dll</HintPath>
     </Reference>
     <Reference Include="Ionic.Zip">
-      <HintPath>..\UMMReferences\Ionic.Zip.dll</HintPath>
+      <HintPath>$(UMMPath)\Ionic.Zip.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\UMMReferences\Newtonsoft.Json.dll</HintPath>
+      <HintPath>$(UMMPath)\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.13.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -103,7 +103,7 @@
       <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Killer Queen Black\Killer Queen Black_Data\Managed\UnityEngine.UnityWebRequestModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityModManager">
-      <HintPath>..\UMMReferences\UnityModManager.dll</HintPath>
+      <HintPath>$(UMMPath)\UnityModManager.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
