@@ -94,13 +94,13 @@
       <HintPath>$(KQBManagedPath)\UnityEngine.LocalizationModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.TextRenderingModule">
-      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Killer Queen Black\Killer Queen Black_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
+      <HintPath>$(KQBManagedPath)\UnityEngine.TextRenderingModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>$(KQBManagedPath)\UnityEngine.UI.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UnityWebRequestModule">
-      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Killer Queen Black\Killer Queen Black_Data\Managed\UnityEngine.UnityWebRequestModule.dll</HintPath>
+      <HintPath>$(KQBManagedPath)\UnityEngine.UnityWebRequestModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityModManager">
       <HintPath>$(UMMPath)\UnityModManager.dll</HintPath>
