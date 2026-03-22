@@ -52,7 +52,7 @@ Download and install the latest version of [Unity Mod Manager](https://www.nexus
 
 > DO NOT FALL FOR OTHER WEBSITES, THE OFFICIAL VERSION LIVES IN NEXUS MODS SITE
 
-While Killer Queen Black is not in the list of supported games, you can add it manually by editing the `UnityModManagerConfigLocal.xml` file to look like this:
+At some point I added Killer Queen Black to the list of supported games so you only need to select it from the list of games. If for some reason it's not there, you can add it manually by editing the `UnityModManagerConfigLocal.xml` file to look like this:
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
